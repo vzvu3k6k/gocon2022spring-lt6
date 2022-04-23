@@ -47,12 +47,14 @@ func setDescription(desc string) chromedp.Tasks {
 }
 
 func main() {
+	// chromedpのcontextを用意する
 	ctx, cancel := prepareContext()
 	defer cancel()
 
 	username := os.Getenv("CONNPASS_ID")
 	password := os.Getenv("CONNPASS_PASSWORD")
 
+	// connpassにログインする
 	err := chromedp.Run(
 		ctx,
 		chromedp.Navigate("https://connpass.com/login/"),
@@ -65,10 +67,12 @@ func main() {
 		log.Fatal("login failed:\n", err)
 	}
 
+	// 「Gopherの会」というイベントを作成する
 	if err := chromedp.Run(ctx, createEvent("Gopherの会")); err != nil {
 		log.Fatal("createEvent failed:\n", err)
 	}
 
+	// イベントの説明文を「参加してね」にする
 	if err := chromedp.Run(ctx, setDescription("参加してね")); err != nil {
 		log.Fatal("setDescription failed:\n", err)
 	}
