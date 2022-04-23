@@ -25,17 +25,6 @@ func prepareContext() (context.Context, func()) {
 	}
 }
 
-// login returns chromedp.Tasks to login to connpass.
-func login(username, password string) chromedp.Tasks {
-	return chromedp.Tasks{
-		chromedp.Navigate("https://connpass.com/login/"),
-		chromedp.SendKeys(`#login_form [name="username"]`, username, chromedp.ByQuery),
-		chromedp.SendKeys(`#login_form [name="password"]`, password, chromedp.ByQuery),
-		chromedp.Submit("#login_form"),
-		chromedp.WaitVisible("body"),
-	}
-}
-
 // createEvent returns chromedp.Tasks to create an event from popup.
 func createEvent(title string) chromedp.Tasks {
 	return chromedp.Tasks{
@@ -58,13 +47,21 @@ func setDescription(desc string) chromedp.Tasks {
 }
 
 func main() {
-	username := os.Getenv("CONNPASS_ID")
-	password := os.Getenv("CONNPASS_PASSWORD")
-
 	ctx, cancel := prepareContext()
 	defer cancel()
 
-	if err := chromedp.Run(ctx, login(username, password)); err != nil {
+	username := os.Getenv("CONNPASS_ID")
+	password := os.Getenv("CONNPASS_PASSWORD")
+
+	err := chromedp.Run(
+		ctx,
+		chromedp.Navigate("https://connpass.com/login/"),
+		chromedp.SendKeys(`#login_form [name="username"]`, username, chromedp.ByQuery),
+		chromedp.SendKeys(`#login_form [name="password"]`, password, chromedp.ByQuery),
+		chromedp.Submit("#login_form"),
+		chromedp.WaitVisible("body"),
+	)
+	if err != nil {
 		log.Fatal("login failed:\n", err)
 	}
 
